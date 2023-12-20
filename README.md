@@ -1,54 +1,58 @@
 # 一键搭建Trojan-Go面板，配合使用CDN+Websocket，免费开启CDN隐藏自己VPS的真实IP，保护VPS永不被墙
-
-
-### trojan多用户管理功能
-- 在线web页面和命令行两种方式管理trojan多用户
-- 启动 / 停止 / 重启 trojan 服务端
-- 支持流量统计和流量限制
-- 命令行模式管理, 支持命令补全
-- 集成acme.sh证书申请
-- 生成客户端配置文件
-- 在线实时查看trojan日志
-- 在线trojan和trojan-go随时切换
-- 支持trojan://分享链接和二维码分享(仅限web页面)
-- 支持转化为clash订阅地址并导入到clash_for_windows(仅限web页面)
-- 限制用户使用期限
-
-一键搭建Trojan-Go教程：https://youtu.be/6SVkVnX8ymY
-
-大神Jrohy的一键脚本支持Trojan-Go，相信在可靠性方面已经十分成熟。既然是一键脚本，我们只要有一台VPS，就可在上面很方便地安装部署。
-
-
 ## 准备工作
-1、VPS一台重置好主流的操作系统（例：Debian10 64）
+## 谷歌云Google Cloud Platform开启SSH访问及设置root访问密码
 
-[Vultr 购买地址，点此进入](https://www.vultr.com/?ref=8941832-8H)：按时计费，最低6$/月。
+使用root用户登录，使用sudo -i切换登录身份
 
-2、域名一个（已经解析的域名，Win+R输入CMD 回车：键入ping 空格输入你的域名，检查一下是否可以ping通）
+设置root密码，使用passwd命令设置root密码
 
-- 如果要使用Trojan-Go开启CND隐藏IP功能，需要将域名托管到CDN。
-点此>>[Cloudflare接管域名解析教程](https://youtu.be/1GtDTWybJNM)
+修改SSH配置文件
+```
+vim /etc/ssh/sshd_config
+```
+找到以下内容并修改；
+PermitRootLogin yes //默认为no，需要开启root用户访问改为yes
+PasswordAuthentication yes //默认为no，改为yes开启密码登陆
 
-
-3、下载并安装FinalShell SSH工具
-
-Windows版下载地址:[点此下载](http://www.hostbuf.com/downloads/finalshell_install.exe)
-
-macOS版下载地址: [点此下载](http://www.hostbuf.com/downloads/finalshell_install.pkg)
+修改完成之后重启
 
 ## 搭建Trojan-go面板
 
 ### 开启Debian10自带的BBR加速
-脚本如下，可以一起复制运行，或分四行代码一条一条运行。
+## Installation 安装方法  
 
-    echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-       
-    echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
-    
-    sysctl -p
-    
-    lsmod | grep bbr
-    
+#### Usage 脚本使用方法
+```bash
+bash <(curl -Lso- https://git.io/kernel.sh)
+```
+#### 通过 curl 命令安装  via curl to install script
+
+```bash
+curl -O https://raw.githubusercontent.com/jinwyp/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
+```
+
+#### 通过 wget 命令安装 Linux 内核 和 Wireguard  via wget to install script
+
+```bash
+wget --no-check-certificate https://raw.githubusercontent.com/jinwyp/one_click_script/master/install_kernel.sh && chmod +x ./install_kernel.sh && ./install_kernel.sh
+```
+
+![功能列表3](https://github.com/jinwyp/one_click_script/blob/master/docs/readme3.png?raw=true)
+    ## 使用说明 Usage 
+
+### kernel
+### 安装 linux 新版内核 开启BBR 或 BBR Plus 加速
+
+
+1. CentOS / AlmaLinux / Rocky Linux 系统安装新版 linux 内核. 运行脚本后 请选择31 安装官方源最新版5.16内核 或选择35 安装 LTS 5.10 内核 推荐安装 LTS 5.10. 根据提示需要重启2次 完成内核安装。
+2. Debian / Ubuntu 系统安装新版 linux 内核. 运行脚本后 Debian 请选择41 安装 LTS 5.10 内核, Ubuntu 请选择45 安装 LTS 5.10 内核. 根据提示需要重启2次 完成内核安装。
+3. 开启 BBR 网络加速. 完成上面更换新内核后, 重新运行脚本后 选择2 然后根据提示选择 BBR 加速, 推荐使用BBR + Cake 组合算法.
+4. 安装BBR Plus 内核并开启 BBR Plus. 运行脚本后 选择61 安装原版4.14.129版本 BBR Plus 内核, 或选择66 安装5.10 LTS BBR Plus内核. 安装完成重启2次后, 重新运行脚本后 选择3 根据提示开始 BBR Plus. 
+5. 注意安装过程中 如果弹出大框的英文提示(下面有示例图) "安装linux内核有风险是否终止", 要选择" NO" 不终止. 安装完毕会重启VPS.
+
+![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/debian.jpg?raw=true)
+![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/kernel.png?raw=true)
+![注意 安装BBR plus](https://github.com/jinwyp/one_click_script/blob/master/docs/ubuntu.png?raw=true)
 ## 更新系统安装环境
 
 1、Debian/Ubuntu系统执行以下命令：。
@@ -120,23 +124,6 @@ macOS版下载地址: [点此下载](http://www.hostbuf.com/downloads/finalshell
 1、/DFE4545DFDED/为路径，随意填写。
 2、host后 填上你的域名
 
-### 保存后，在Trojan-Go面板重启服务。
-
-## 下载Trojan-Go客户端
-### Trojan-QT5 （支持WIN/MACOS）
-因为此Trojan-QT5 项目已经停更，所以只有1.4.0版本的供大家下载。
-
-https://github.com/V2RaySSR/Trojan_panel_web/releases/tag/trojanqt5
-
-- 如果Windows安装出错，请下载右上方的附件： Trojan-Qt5-Windows 压缩包
-
-<div align=center><img src="https://github.com/KEJIXIAOLU/Trojan/blob/main/%E6%9C%AA%E6%A0%87%E9%A2%98-2.png"  /></div>
-
-### QV2RAY（支持WIN/MACOS）
-
-QV2RAY 下载地址：https://github.com/Qv2ray/Qv2ray/releases/
-
-QV2RAY 内核下载地址：https://github.com/v2ray/v2ray-core/releases
 
 
 
